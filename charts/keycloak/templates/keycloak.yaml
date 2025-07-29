@@ -20,7 +20,5 @@ spec:
   http:
     tlsSecret: {{ .Values.keycloak.tls.secret }}
   ingress:
-    {{- if not (eq .Values.keycloak.ingress.enabled true) }}
     enabled: false
-    {{- end }}
   instances: 1
