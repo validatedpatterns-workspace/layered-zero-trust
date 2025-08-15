@@ -4,6 +4,7 @@ clusterGroup:
   namespaces:
     - open-cluster-management
     - vault
+    - qtodo
     - golang-external-secrets
     - keycloak-system:
         operatorGroup: true
@@ -98,6 +99,14 @@ clusterGroup:
       overrides:
         - name: spire.clusterName
           value: hub
+    qtodo:
+      name: qtodo
+      namespace: qtodo
+      project: hub
+      path: charts/qtodo
+
+
+
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule

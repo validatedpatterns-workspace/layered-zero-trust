@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: '20'
+  labels:
+    app: qtodo
+  name: qtodo
+  namespace: qtodo
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      deployment: qtodo
+  template:
+    metadata:
+      labels:
+        app: qtodo
+        deployment: qtodo
+      name: qtodo
+    spec:
+      containers:
+      - name: qtodo
+        # Fully expect to change this to somewhere else. https://github.com/posip-redhat/qtodo repo has container build instructions
+        image: quay.io/posip-lab/qtodo-ubi10:latest
+        # Modified to Always to force a pull so we can test changes to the container image without requiring manual deletion of images or restarts of argo
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        env:
+        - name: QUARKUS_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: qtodo-db-secret
+              key: username
+        - name: QUARKUS_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: qtodo-db-secret
+              key: password
+        - name: QUARKUS_DATASOURCE_JDBC_URL
+          value: 'jdbc:postgresql://qtodo-db.qtodo.svc.cluster.local:5432/tasks'
+        - name: QUARKUS_HTTP_HOST
+          value: '0.0.0.0'
+        - name: QUARKUS_HTTP_PORT
+          value: '8080'
+        - name: QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION
+          value: 'drop-and-create'
+        resources: {}
