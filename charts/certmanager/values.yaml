@@ -58,9 +58,12 @@ certmgrOperator:
         statementEntries:
         - effect: Allow
           action:
-          - route53:GetChange
+            - route53:GetChange
+          resource: "arn:aws:route53:::change/*"
+        - effect: Allow
+          action:
           - route53:ChangeResourceRecordSets
-          - route53:ListHostedZonesByName
+          - route53:ListResourceRecordSets
           resource: "arn:aws:route53:::hostedzone/*"
         - effect: Allow
           action:
