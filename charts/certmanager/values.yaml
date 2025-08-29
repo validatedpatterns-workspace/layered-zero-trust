@@ -45,7 +45,7 @@ certmgrOperator:
                 secretAccessKeySecretRef:
                   name: "aws-credentials"
                   key: "aws_secret_access_key"
-                hostedZoneID: "Z01475951Q7XL42XO89T3"
+                hostedZoneID: "Z001281810MV5UN93UQKQ"
 
   credentialsRequests:
     - name: aws
