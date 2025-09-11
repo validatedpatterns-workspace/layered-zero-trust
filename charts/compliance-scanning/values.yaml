@@ -30,4 +30,3 @@ compliance:
       storageClass: ""
       size: "2Gi"
       accessMode: "ReadWriteOnce"
-
