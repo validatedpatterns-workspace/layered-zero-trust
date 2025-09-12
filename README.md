@@ -17,10 +17,12 @@ The basis of this pattern leverages the foundation provided by the [Multicloud G
 
 ### Prerequisites
 
-1. An OpenShift Cluster
-    * Create a cluster either through the [Red Hat Hybrid Cloud Console](https://console.redhat.com) or manually using any of the available [installation methods](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/architecture/architecture-installation)
+1. An OpenShift Container Platform cluster with:
+    * Publicly signed certificates for Ingress
     * A default `StorageClass` which provides dynamic `PersistentVolume` storage
-2. [Validated Patterns Tooling](https://validatedpatterns.io/learn/quickstart)
+2. A GitHub account and a token for it with repositories permissions, to read from and write to your forks. (Not strictly necessary if you can accept all of the default configuration for demonstration purposes)
+3. Access to Podman (or Docker) for execution of the container images used by pattern.sh script for provisioning.
+4. [Validated Patterns Tooling](https://validatedpatterns.io/learn/quickstart)
 
 ### Prepare for Deployment
 
