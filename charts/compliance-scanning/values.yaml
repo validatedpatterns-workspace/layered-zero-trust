@@ -20,7 +20,7 @@ compliance:
   scanSettingBinding:
     name: compliance-scan-binding
     # Profile in oc get profiles.compliance -n openshift-compliance
-    profile: "rhcos4-stig"
+    profile: "ocp4-moderate"
   # Storage configuration for scan results
   storage:
     # Enable PVC creation
