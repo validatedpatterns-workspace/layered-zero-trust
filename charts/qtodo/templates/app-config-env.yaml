@@ -11,4 +11,5 @@ data:
   QUARKUS_OIDC_APPLICATION_TYPE: "{{ .Values.app.oidc.applicationType }}"
   QUARKUS_HTTP_AUTH_PERMISSION_AUTHENTICATED_PATHS: "{{ .Values.app.oidc.authenticatedPaths }}"
   QUARKUS_HTTP_AUTH_PERMISSION_AUTHENTICATED_POLICY: "{{ .Values.app.oidc.authenticatedPolicy }}"
+  QUARKUS_OIDC_AUTHENTICATION_FORCE_REDIRECT_HTTPS_SCHEME: "true"
 {{- end }}
