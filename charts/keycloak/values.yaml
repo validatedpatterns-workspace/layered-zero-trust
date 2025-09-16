@@ -63,6 +63,7 @@ keycloak:
     enabled: true
     service: keycloak-service-trusted
     termination: reencrypt
+    hostname: ""
   name: keycloak
   postgresqlDb:
     database: keycloak

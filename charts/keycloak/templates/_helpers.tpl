@@ -14,7 +14,7 @@ Generate the hostname for the Ingress.
 */}}
 
 {{- define "keycloak.ingress.hostname" -}}
-{{- if eq .Values.keycloak.ingress.hostname "" }}
+{{- if or (not .Values.keycloak.ingress.hostname) (eq .Values.keycloak.ingress.hostname "") }}
 {{- printf "%s.%s" .Values.keycloak.name .Values.global.localClusterDomain }}
 {{- else }}
 {{- print .Values.keycloak.ingress.hostname }}
