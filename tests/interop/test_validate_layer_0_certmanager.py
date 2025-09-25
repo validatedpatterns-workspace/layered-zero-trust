@@ -98,9 +98,9 @@ def test_certificate_status(openshift_dyn_client):
 
 @pytest.mark.test_openshift_api_certificate
 def test_openshift_api_certificate(openshift_dyn_client):
-    cluster_name = f"{os.getenv("HUB_CLUSTER_PREFIX")}-{os.getenv("INFRA_PROVIDER")}-{os.getenv("MPTS_TEST_RUN_ID")}"
+    cluster_name = f'{os.getenv("HUB_CLUSTER_PREFIX")}-{os.getenv("INFRA_PROVIDER")}-{os.getenv("MPTS_TEST_RUN_ID")}'
     apiserver_name = "cluster"
-    apiserver_fqdn = f"api.{cluster_name}.{os.getenv("AWS_DOMAIN")}"
+    apiserver_fqdn = f'api.{cluster_name}.{os.getenv("AWS_DOMAIN")}'
     apiserver_patch = {
         "metadata": {"name": apiserver_name},
         "spec": {
