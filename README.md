@@ -11,22 +11,41 @@
 
 Showcases the Zero Trust capabilities across Red Hat's product portfolio in a reproducible manner.
 
+### Components
+
+The following components are included in the Layered Zero Trust Pattern
+
+* OpenShift cluster hardening
+  * [Compliance Operator](https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/security_and_compliance/compliance-operator)
+* [Red Hat Build of Keycloak](https://access.redhat.com/products/red-hat-build-of-keycloak/)
+  * Identities to access pattern components
+  * OIDC client to authenticate uses to a web application
+* [Red Hat Zero Trust Workload Identity Manager](https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/security_and_compliance/zero-trust-workload-identity-manager)
+  * Provides identities to workloads running within OpenShift
+* [HashiCorp Vault](https://www.hashicorp.com/en/products/vault)
+  * Secure storage of sensitive assets
+* [External Secrets Operator (ESO)](https://external-secrets.io)
+  * Synchronizes secrets stored in HashiCorp Vault with OpenShift
+
 ## Getting Started
 
-The basis of this pattern leverages the foundation provided by the [Multicloud GitOps Validated Pattern](https://validatedpatterns.io/patterns/multicloud-gitops/).
+Utilize the following steps to prepare your machine and complete any and all prerequisites needed.
 
 ### Prerequisites
 
-1. An OpenShift Container Platform cluster with:
-    * Publicly signed certificates for Ingress
-    * A default `StorageClass` which provides dynamic `PersistentVolume` storage
-2. A GitHub account and a token for it with repositories permissions, to read from and write to your forks. (Not strictly necessary if you can accept all of the default configuration for demonstration purposes)
+1. An OpenShift Container Platform 4.19+ cluster with:
+    1. Publicly signed certificates for Ingress
+    2. A default `StorageClass` which provides dynamic `PersistentVolume` storage
+2. To customize the provided default configuration, a GitHub account and a token for it with repositories permissions, to read from and write to your forks, is required.
 3. Access to Podman (or Docker) for execution of the container images used by pattern.sh script for provisioning.
 4. [Validated Patterns Tooling](https://validatedpatterns.io/learn/quickstart)
 
+_NOTE_: The default deployment of this patterns assumes that none of the components associated with the pattern have been deployed previously. Ensure that your OpenShift environment does not include any of the preceding components.
+
 ### Prepare for Deployment
 
-1. From the [layered-zero-trust](https://github.com/validatedpatterns/layered-zero-trust) repository on GitHub, click the [Fork button](https://github.com/validatedpatterns/layered-zero-trust/fork).
+1. While not required, it is recommended that you Fork the Validated Pattern repository.From the [layered-zero-trust](https://github.com/validatedpatterns/layered-zero-trust) repository on GitHub, click the [Fork button](https://github.com/validatedpatterns/layered-zero-trust/fork).
+
 2. Clone the forked copy of this repository by running the following command.
 
     ```shell
@@ -88,7 +107,7 @@ The basis of this pattern leverages the foundation provided by the [Multicloud G
     git push origin my-branch
     ```
 
-### Deploy the pattern
+## Deploy the pattern
 
 The [pattern.sh](pattern.sh) script is used to deploy the Layered Zero Trust Validated pattern.
 
@@ -112,7 +131,61 @@ The [pattern.sh](pattern.sh) script is used to deploy the Layered Zero Trust Val
     ./pattern.sh make install
     ```
 
-4. Verify the deployment
-    a. To verify, in the OpenShift web console, navigate to **Operators → Installed Operators** page.
-    b. Check that **Red Hat OpenShift GitOps Operator** is installed in the `openshift-operators` namespace and its status is `Succeeded`.
-    c. Use the Application Selector (box with 9 squares) within the OpenShift console to confirm that all _Applications_ have been synchronized successfully to both _Hub_ and _Cluster_ Argo CD instances.
+### Exploring the Deployed Pattern
+
+Once the pattern has been successfully deployed, you can review the deployed components. Each are deployed and managed using OpenShift GitOps.
+
+Two (2) instances of OpenShift GitOps has been deployed to your Hub Cluster. Each can be seen within the OpenShift Console by selecting the Application Selector at the top navigation bar (box with 9 smaller squares).
+
+1. Cluster Argo CD - Deploys an Argo CD App of Apps Application called _layered-zero-trust-hub_ which deploys the components associated with the pattern. These _Applications_ are managed by the Hub Argo CD instance (see below)
+2. Hub Argo CD - Manages the individual components associated with the pattern on the Hub OpenShift instance.
+
+If all of the Argo CD applications are reporting healthy, the pattern has been deployed successfully.
+
+#### Secure Multi-tier Application Use Case
+
+One of the most common application design patterns makes use of a frontend application leveraging a database for persistent storage. Instead of traditional methods for accessing the database from the frontend application using static values stored within the application, this pattern will make use "just in time" methods for obtaining these database values from a credential store. A more detailed overview is located below:
+
+* qtodo - [Quarkus](https://quarkus.io) based frontend application. Access is protected via OIDC based authentication with users defined within an external identity store (Red Hat Build of Keycloak by default)
+* PostgreSQL - Relational database for use by the qtodo application. Credentials are generated dynamically and stored within Vault.
+* External Identity store - Users have been defined to enable access to the qtodo frontend. OIDC clients have also been created and configured within the todo application
+* HashiCorp Vault - Several features are being leveraged within this use case the external identity store
+  * Secrets store - Storage of sensitive values for components including PostgreSQL and RHBK
+  * JWT based authentication - Enables access using ZTWIM based identities
+* Zero Trust Workload Identity - Enables an identity to be assigned to the qtodo application to communicate with HashiCorp Vault and obtain the credentials to access the PostgreSQL database
+  * [spiffe-helper](https://github.com/spiffe/spiffe-helper) - Supplemental component provided for the qtodo application to dynamically fetch JWT based identities from the SPIFFE Workload API.
+
+#### Investigating the qtodo Application in depth
+
+With an understanding of the goals and architecture of qtodo, launch the OpenShift Console of the Hub cluster and navigate to the `qtodo` project
+
+1. Select **Home** -> **Projects** from the left hand navigation bar
+2. Locate and select the **qtodo** project
+
+The _qtodo_ Quarkus application and _qtodo-db_ PostgreSQL database are found within this namespace.
+
+View the running pods associated with these components
+
+1. Select **Workloads** -> **Pods** from the left hand navigation bar
+2. Explore both the _qtodo_ and _qtodo-db_ pods.
+
+Take note that the _qtodo_ Pod makes use of a series of init containers and sidecar containers that are used to supply the application with credentials needed to support the application.
+
+Access the qtodo application in a browser. The URL can be located from the OpenShift Route in the `qtodo` Project
+
+1. Select **Networking** -> **Routes** from the lefthand navigation bar
+2. Click the arrow next to the the URL underneath the _Location_ column to open the qtodo application in a new browser tab
+
+You will be presented with a login page to access the application. When using the default External Identity Provider (RHBK), two users (`qtodo-admin` and `qtodo-user`) were provisioned automatically. Their initial credentials are stored in a Secret in the `keycloak-system` namespace called `keycloak-users`. You can reveal the credentials by switching to the tab containing the OpenShift Console using the following steps:
+
+1. Select **Home** -> **Projects** from the left hand navigation bar
+2. Locate and select the **keycloak-system** project
+3. Select **Workloads** -> **Secrets** from the left hand navigation bar
+4. Select the **keycloak-users** Secret
+5. Click the **Reveal values** link to uncover the underlying values for the users
+
+Switch back to the qtodo application and enter the username and password on the login page for one of the users using the values discovered previously.
+
+Once you have authenticated to RHBK, you will be instructed to change the temporary password and set a more permanent password. Once complete, you will be redirected to the qtodo application verifying the OIDC based authentication functions properly.
+
+Feel free to add new items to the list of todos. By being able to add and remove items from the page, the integration between the Quarkus application and the backend PostgreSQL database using credentials sourced from HashiCorp Vault was successful.
