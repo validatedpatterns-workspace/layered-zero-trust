@@ -39,6 +39,7 @@ Utilize the following steps to prepare your machine and complete any and all pre
 2. To customize the provided default configuration, a GitHub account and a token for it with repositories permissions, to read from and write to your forks, is required.
 3. Access to Podman (or Docker) for execution of the container images used by pattern.sh script for provisioning.
 4. [Validated Patterns Tooling](https://validatedpatterns.io/learn/quickstart)
+5. Depending on the characteristics of your cluster, you may need additional hardware resources for Advanced Cluster Management (ACM) component. For a single node cluster you can start with 4 vCPUs, 16 GB of memory and 120 GB of storage. For more detailed information about ACM sizing, please refer to the [official documentation](https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.14/html-single/install/index#sizing-your-cluster).
 
 _NOTE_: The default deployment of this patterns assumes that none of the components associated with the pattern have been deployed previously. Ensure that your OpenShift environment does not include any of the preceding components.
 
