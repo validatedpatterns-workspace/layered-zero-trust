@@ -61,9 +61,9 @@ keycloak:
       username: qtodo-user1
   ingress:
     enabled: true
+    hostname: keycloak-customized.apps.qe-zt-hub-aws-21794.aws.validatedpatterns.io
     service: keycloak-service-trusted
     termination: reencrypt
-    hostname: ""
   name: keycloak
   postgresqlDb:
     database: keycloak
