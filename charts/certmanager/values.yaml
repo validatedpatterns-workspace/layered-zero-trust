@@ -1,6 +1,9 @@
 # -- Dictionary of the global settings to configure this chart
 # @default -- depends on the individual settings
 global:
+  secretStore:
+    name: "vault-backend"
+    kind: "ClusterSecretStore"
 
 installerType: "argocd"
 
@@ -26,100 +29,44 @@ certmgrOperator:
 
   # -- Issuers to use for the cert-manager (optional)
   # You can specify multiple issuers for different challenges.
-  issuers: []
-    # -- ACME settings
-    # - acme:
-    #     -- Email to use for ACME account
-    #     email: "user@example.com"
-    #     -- Secret resource to store ACME account's private key
-    #     privateKeySecretRef:
-    #       name: "acme-account-key"
-    #     -- ACME server to use
-    #     Examples:
-    #     - https://acme-staging-v02.api.letsencrypt.org/directory
-    #     - https://acme-v02.api.letsencrypt.org/directory
-    #     server: "https://acme-staging-v02.api.letsencrypt.org/directory"
-    #     -- ACME solvers to use (optional)
-    #     You can specify multiple solvers for different challenges.
-    #     solvers: []
-    #       Examples:
-    #       - dns01:
-    #         -- AWS Route53 example
-    #         route53:
-    #           region: "us-east-1"
-    #           accessKeyIDSecretRef:
-    #             name: "aws-credentials"
-    #             key: aws_access_key_id
-    #           secretAccessKeySecretRef:
-    #             name: aws-credentials
-    #             key: aws_secret_access_key
-    #           hostedZoneID: "hosted-zone-id"
-    #         -- Azure example
-    #         azureDNS:
-    #           resourceGroupName: "my-resource-group"
-    #           subscriptionID: "my-subscription-id"
-    #           hostedZoneName: "my-hosted-zone-name"
-    #           environment: "AzurePublicCloud"
-    #           managedIdentity:
-    #             clientID: "my-client-id"
-    #         -- GCP example
-    #         cloudDNS:
-    #           project: "my-project"
-    #           serviceAccountSecretRef:
-    #             name: "my-service-account"
-    #             key: "my-key"
-    #         -- Cloudflare example
-    #         cloudflare:
-    #           apiTokenSecretRef:
-    #             name: "my-api-key"
-    #             key: "my-key"
+  issuers:
+    - acme:
+        email: "validated-patterns-qe@redhat.com"
+        server: "https://acme-staging-v02.api.letsencrypt.org/directory"
+        privateKeySecretRef:
+          name: "acme-account-key"
+        solvers:
+          - dns01:
+              route53:
+                region: "eu-west-3"
+                accessKeyIDSecretRef:
+                  name: "aws-credentials"
+                  key: "aws_access_key_id"
+                secretAccessKeySecretRef:
+                  name: "aws-credentials"
+                  key: "aws_secret_access_key"
+                hostedZoneID: "Z001281810MV5UN93UQKQ""
 
-
-  # -- Cloud credentials to use for the cert-manager (optional)
-  # You can specify multiple cloud credentials for different cloud providers.
-  # The cloud credentials will be used in combination with the solvers to create the DNS records.
-  credentialsRequests: []
-  # -- AWS example
-  # - name: aws
-  #   secretRef:
-  #     name: "aws-credentials"
-  #     namespace: "cert-manager"
-  #   providerSpec:
-  #     apiVersion: cloudcredential.openshift.io/v1
-  #     kind: "AWSProviderSpec"
-  #     statementEntries:
-  #     - effect: Allow
-  #       action:
-  #         - route53:GetChange
-  #       resource: "arn:aws:route53:::change/*"
-  #     - effect: Allow
-  #       action:
-  #         - route53:ChangeResourceRecordSets
-  #         - route53:ListResourceRecordSets
-  #       resource: "arn:aws:route53:::hostedzone/*"
-  #     -- Can be removed if you specify the (optional) hostedZoneID.
-  #     - effect: Allow
-  #       action:
-  #         - route53:ListHostedZones
-  #       resource: "*"
-  # -- Azure example
-  # - name: azure
-  #   secretRef:
-  #     name: "azure-credentials"
-  #     namespace: "cert-manager"
-  #   providerSpec:
-  #     apiVersion: cloudcredential.openshift.io/v1
-  #     kind: "AzureProviderSpec"
-  #     roleBindings:
-  #       - role: "DNS Zone Contributor"
-  # -- GCP example
-  # - name: gcp
-  #   secretRef:
-  #     name: "gcp-credentials"
-  #     namespace: "cert-manager"
-  #   providerSpec:
-  #     apiVersion: cloudcredential.openshift.io/v1
-  #     kind: "GCPProviderSpec"
-  #     predefinedRoles:
-  #       - "roles/dns.admin"
-  #     gcpServiceAccount: "cert-manager-clusterName-dns"
+  credentialsRequests:
+    - name: aws
+      secretRef:
+        name: "aws-credentials"
+        namespace: "cert-manager"
+      providerSpec:
+        apiVersion: cloudcredential.openshift.io/v1
+        kind: "AWSProviderSpec"
+        statementEntries:
+        - effect: Allow
+          action:
+            - route53:GetChange
+          resource: "arn:aws:route53:::change/*"
+        - effect: Allow
+          action:
+            - route53:ChangeResourceRecordSets
+            - route53:ListResourceRecordSets
+          resource: "arn:aws:route53:::hostedzone/*"
+#       -- can be removed if you specify the (optional) hostedZoneID.
+        - effect: Allow
+          action:
+            - route53:ListHostedZones
+          resource: "*"
