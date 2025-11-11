@@ -4,7 +4,7 @@
 apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
-  name: {{ $group.name }}-namespace-policy
+  name: hub-gitops-ca-{{ $group.name }}-policy
   namespace: open-cluster-management
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
@@ -17,7 +17,7 @@ spec:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
         metadata:
-          name: {{ $group.name }}-namespace-config
+          name: hub-gitops-ca-{{ $group.name }}-config
         spec:
           remediationAction: enforce
           severity: medium
@@ -25,33 +25,39 @@ spec:
             include:
               - default
           object-templates:
-            - complianceType: musthave
+            - complianceType: mustonlyhave
               objectDefinition:
-                kind: Namespace
+                kind: ConfigMap
                 apiVersion: v1
                 metadata:
-                  name: {{ $.Values.global.pattern }}-{{ $group.name }}
+                  name: trusted-hub-bundle
+                  namespace: openshift-gitops
+                data:
+                  hub-kube-root-ca.crt: |
+                    {{ `{{hub fromConfigMap "" "kube-root-ca.crt" "ca.crt" | autoindent hub}}` }}
+                  hub-openshift-service-ca.crt: |
+                    {{ `{{hub fromConfigMap "" "openshift-service-ca.crt" "service-ca.crt" | autoindent hub}}` }}
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
-  name: {{ $group.name }}-namespace-placement-binding
+  name: hub-gitops-ca-{{ $group.name }}-placement-binding
   namespace: open-cluster-management
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 placementRef:
-  name: {{ $group.name }}-namespace-placement
+  name: hub-gitops-ca-{{ $group.name }}-placement
   kind: PlacementRule
   apiGroup: apps.open-cluster-management.io
 subjects:
-  - name: {{ $group.name }}-namespace-policy
+  - name: hub-gitops-ca-{{ $group.name }}-policy
     kind: Policy
     apiGroup: policy.open-cluster-management.io
 ---
 apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
-  name: {{ $group.name }}-namespace-placement
+  name: hub-gitops-ca-{{ $group.name }}-placement
   namespace: open-cluster-management
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
