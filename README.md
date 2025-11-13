@@ -254,3 +254,7 @@ The pattern supports importating pre-existing Openshift clusters into the Hub cl
     ```
 
 5. Deploy the pattern.
+
+## Development
+
+Interested in developing capabilities for this pattern or performing tests against it? Head over to our [Developer Documentation](./DEVELOPMENT.md).
