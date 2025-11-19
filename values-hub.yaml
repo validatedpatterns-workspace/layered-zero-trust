@@ -28,17 +28,17 @@ clusterGroup:
         targetNamespace: cert-manager-operator
     # Layer 1: Quay Registry (for container image storage and signing)
     # COMMENTED OUT: Uncomment to enable integrated Quay registry
-    # - openshift-storage:
-    #     operatorGroup: true
-    #     targetNamespace: openshift-storage
-    #     annotations:
-    #       openshift.io/cluster-monitoring: "true"
-    #       argocd.argoproj.io/sync-wave: "-5"  # Propagated to OperatorGroup by framework
-    # - quay-enterprise:
-    #     annotations:
-    #       argocd.argoproj.io/sync-wave: "1"  # Create before NooBaa and all Quay components
-    #     labels:
-    #       openshift.io/cluster-monitoring: "true"
+    - openshift-storage:
+        operatorGroup: true
+        targetNamespace: openshift-storage
+        annotations:
+          openshift.io/cluster-monitoring: "true"
+          argocd.argoproj.io/sync-wave: "-5"  # Propagated to OperatorGroup by framework
+    - quay-enterprise:
+        annotations:
+          argocd.argoproj.io/sync-wave: "1"  # Create before NooBaa and all Quay components
+        labels:
+          openshift.io/cluster-monitoring: "true"
     # RHTAS namespace (required when RHTAS application is enabled)
     # COMMENTED OUT: Uncomment to enable RHTAS with SPIFFE signing
     # - trusted-artifact-signer:
@@ -86,18 +86,18 @@ clusterGroup:
     # Storage and Registry operator subscriptions
     # COMMENTED OUT: Uncomment to enable integrated Quay registry
     # ODF provides object storage backend (NooBaa) for Quay and RHTPA
-    # odf:
-    #   name: odf-operator
-    #   namespace: openshift-storage
-    #   channel: stable-4.19
-    #   annotations:
-    #     argocd.argoproj.io/sync-wave: "-4"  # Install after OperatorGroup (-5)
-    # quay-operator:
-    #   name: quay-operator
-    #   namespace: openshift-operators
-    #   channel: stable-3.15
-    #   annotations:
-    #     argocd.argoproj.io/sync-wave: "-3"  # Install after ODF operator
+    odf:
+      name: odf-operator
+      namespace: openshift-storage
+      channel: stable-4.19
+      annotations:
+        argocd.argoproj.io/sync-wave: "-4"  # Install after OperatorGroup (-5)
+    quay-operator:
+      name: quay-operator
+      namespace: openshift-operators
+      channel: stable-3.15
+      annotations:
+        argocd.argoproj.io/sync-wave: "-3"  # Install after ODF operator
     # RHTAS operator subscription (required when RHTAS application is enabled)
     # COMMENTED OUT: Uncomment to enable RHTAS with SPIFFE integration
     # rhtas-operator:
@@ -177,21 +177,21 @@ clusterGroup:
     # COMMENTED OUT: Uncomment to enable integrated Quay registry
     # NooBaa MCG provides S3-compatible object storage for multiple applications
     # Direct consumers: Quay (container image storage)
-    # noobaa-mcg:
-    #   name: noobaa-mcg
-    #   namespace: openshift-storage
-    #   project: hub
-    #   path: charts/noobaa-mcg
-    #   annotations:
-    #     argocd.argoproj.io/sync-wave: "5"  # Deploy after core services
+    noobaa-mcg:
+      name: noobaa-mcg
+      namespace: openshift-storage
+      project: hub
+      path: charts/noobaa-mcg
+      annotations:
+        argocd.argoproj.io/sync-wave: "5"  # Deploy after core services
     # Quay Container Registry (uses NooBaa for storage)
-    # quay-registry:
-    #   name: quay-registry
-    #   namespace: quay-enterprise
-    #   project: hub  
-    #   path: charts/quay-registry
-    #   annotations:
-    #     argocd.argoproj.io/sync-wave: "10"  # Deploy after NooBaa storage backend
+    quay-registry:
+      name: quay-registry
+      namespace: quay-enterprise
+      project: hub  
+      path: charts/quay-registry
+      annotations:
+        argocd.argoproj.io/sync-wave: "10"  # Deploy after NooBaa storage backend
     # RHTAS with SPIFFE Integration
     # COMMENTED OUT: Uncomment to enable RHTAS with SPIFFE and Keycloak issuers
     # Depends on: Vault, SPIRE, Keycloak
