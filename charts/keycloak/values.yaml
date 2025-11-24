@@ -98,7 +98,6 @@ keycloak:
       username: rhtas-user
   ingress:
     enabled: true
-    hostname: keycloak-customized.apps.qe-zt-hub-aws-22083.aws.validatedpatterns.io
     service: keycloak-service-trusted
     termination: reencrypt
   name: keycloak
