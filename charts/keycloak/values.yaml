@@ -18,30 +18,30 @@ keycloak:
       standardFlowEnabled: true
       webOrigins:
       - +
-    - clientId: trusted-artifact-signer
+    - attributes:
+        oauth2.device.authorization.grant.enabled: 'true'
+      clientId: trusted-artifact-signer
+      directAccessGrantsEnabled: true
       enabled: true
+      implicitFlowEnabled: false
       name: Red Hat Trusted Artifact Signer Client
       protocol: openid-connect
+      protocolMappers:
+      - config:
+          access.token.claim: 'true'
+          id.token.claim: 'false'
+          included.client.audience: trusted-artifact-signer
+        name: audience-mapper
+        protocol: openid-connect
+        protocolMapper: oidc-audience-mapper
       publicClient: true
       redirectUris:
       - '*'
-      - 'urn:ietf:wg:oauth:2.0:oob'
-      - 'http://localhost:*/auth/callback'
-      directAccessGrantsEnabled: true
+      - urn:ietf:wg:oauth:2.0:oob
+      - http://localhost:*/auth/callback
       standardFlowEnabled: true
-      implicitFlowEnabled: false
       webOrigins:
       - +
-      attributes:
-        oauth2.device.authorization.grant.enabled: 'true'
-      protocolMappers:
-      - name: audience-mapper
-        protocol: openid-connect
-        protocolMapper: oidc-audience-mapper
-        config:
-          included.client.audience: trusted-artifact-signer
-          access.token.claim: 'true'
-          id.token.claim: 'false'
     displayName: ZTVP Realm
     enabled: true
     realm: ztvp
@@ -98,9 +98,9 @@ keycloak:
       username: rhtas-user
   ingress:
     enabled: true
+    hostname: keycloak-customized.apps.qe-zt-hub-aws-22196.aws.validatedpatterns.io
     service: keycloak-service-trusted
     termination: reencrypt
-    hostname: ""
   name: keycloak
   postgresqlDb:
     database: keycloak
