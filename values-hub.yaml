@@ -28,17 +28,17 @@ clusterGroup:
         targetNamespace: cert-manager-operator
     # Layer 1: Storage and Registry
     # Required for RHTPA and QUAY (provides NooBaa object storage backend)
-    # - openshift-storage:
-    #     operatorGroup: true
-    #     targetNamespace: openshift-storage
-    #     annotations:
-    #       openshift.io/cluster-monitoring: "true"
-    #       argocd.argoproj.io/sync-wave: "-5"  # Propagated to OperatorGroup by framework
-    # - quay-enterprise:
-    #     annotations:
-    #       argocd.argoproj.io/sync-wave: "1"  # Create before NooBaa and all Quay components
-    #     labels:
-    #       openshift.io/cluster-monitoring: "true"
+    - openshift-storage:
+        operatorGroup: true
+        targetNamespace: openshift-storage
+        annotations:
+          openshift.io/cluster-monitoring: "true"
+          argocd.argoproj.io/sync-wave: "-5"  # Propagated to OperatorGroup by framework
+    - quay-enterprise:
+        annotations:
+          argocd.argoproj.io/sync-wave: "1"  # Create before NooBaa and all Quay components
+        labels:
+          openshift.io/cluster-monitoring: "true"
     # RHTAS namespace (required when RHTAS application is enabled)
     # COMMENTED OUT: Uncomment to enable RHTAS with SPIFFE signing
     # - trusted-artifact-signer:
@@ -102,18 +102,18 @@ clusterGroup:
     # Storage and Registry operator subscriptions
     # Required for RHTPA and QUAY (provides NooBaa object storage backend)
     # ODF provides object storage backend (NooBaa) for RHTPA and optionally Quay
-    # odf:
-    #   name: odf-operator
-    #   namespace: openshift-storage
-    #   channel: stable-4.20
-    #   annotations:
-    #     argocd.argoproj.io/sync-wave: "-4"  # Install after OperatorGroup (-5)
-    # quay-operator:
-    #   name: quay-operator
-    #   namespace: openshift-operators
-    #   channel: stable-3.15
-    #   annotations:
-    #     argocd.argoproj.io/sync-wave: "-3"  # Install after ODF operator
+    odf:
+      name: odf-operator
+      namespace: openshift-storage
+      channel: stable-4.20
+      annotations:
+        argocd.argoproj.io/sync-wave: "-4"  # Install after OperatorGroup (-5)
+    quay-operator:
+      name: quay-operator
+      namespace: openshift-operators
+      channel: stable-3.15
+      annotations:
+        argocd.argoproj.io/sync-wave: "-3"  # Install after ODF operator
     # RHTAS operator subscription (required when RHTAS application is enabled)
     # COMMENTED OUT: Uncomment to enable RHTAS with SPIFFE integration
     # rhtas-operator:
