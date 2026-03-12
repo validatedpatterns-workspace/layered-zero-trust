@@ -75,6 +75,54 @@ keycloak:
           access.token.claim: 'true'
           id.token.claim: 'true'
           userinfo.token.claim: 'false'
+    # ACS Central OIDC Client
+    - clientId: acs-central
+      enabled: true
+      name: Red Hat Advanced Cluster Security Central
+      protocol: openid-connect
+      publicClient: false
+      secret: ${ACS_CLIENT_SECRET}
+      redirectUris:
+      - '*'
+      directAccessGrantsEnabled: true
+      standardFlowEnabled: true
+      implicitFlowEnabled: false
+      webOrigins:
+      - '*'
+      fullScopeAllowed: true
+      defaultClientScopes:
+      - openid
+      - basic
+      - email
+      - profile
+      - roles
+      - web-origins
+      optionalClientScopes:
+      - address
+      - phone
+      - offline_access
+      protocolMappers:
+      - name: groups
+        protocol: openid-connect
+        protocolMapper: oidc-group-membership-mapper
+        consentRequired: false
+        config:
+          full.path: 'false'
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: groups
+          userinfo.token.claim: 'true'
+      - name: roles
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-realm-role-mapper
+        consentRequired: false
+        config:
+          multivalued: 'true'
+          userinfo.token.claim: 'true'
+          id.token.claim: 'true'
+          access.token.claim: 'true'
+          claim.name: roles
+          jsonType.label: String
     # RHTPA CLI Client - matches Trustify 'cli' client configuration
     # Reference: https://github.com/guacsec/trustify-helm-charts/blob/main/charts/trustify-infrastructure/templates/keycloak/010-ConfigMap.yaml
     - clientId: rhtpa-cli
@@ -148,6 +196,22 @@ keycloak:
     # Note: We must define 'basic' scope with 'sub' mapper for OIDC compliance
     # The 'sub' claim is required by RHTPA for user identification
     clientScopes:
+    # OpenID scope - mandatory OIDC scope (required by ACS and other OIDC clients)
+    - name: openid
+      description: OpenID Connect built-in scope
+      protocol: openid-connect
+      attributes:
+        include.in.token.scope: 'true'
+        display.on.consent.screen: 'false'
+      protocolMappers:
+      - name: sub
+        protocol: openid-connect
+        protocolMapper: oidc-sub-mapper
+        consentRequired: false
+        config:
+          introspection.token.claim: 'true'
+          access.token.claim: 'true'
+          id.token.claim: 'true'
     # Basic scope - required for 'sub' claim in tokens
     # Standard OIDC scopes required by Trustify/RHTPA
     # Reference: https://github.com/mrrajan/trustify/blob/doc_rhbk_operator/docs/book/modules/admin/pages/infrastructure.adoc
@@ -284,6 +348,7 @@ keycloak:
         display.on.consent.screen: 'false'
     # Set default client scopes for the realm (applied to all new clients)
     defaultDefaultClientScopes:
+    - openid
     - basic
     - email
     - profile
@@ -299,6 +364,8 @@ keycloak:
         name: create:sbom
       - description: RHTPA Document Creator
         name: create:document
+      - description: ACS Administrator
+        name: acs-admin
     users:
     - createdTimestamp: 1
       credentials:
@@ -358,6 +425,20 @@ keycloak:
       - create:sbom
       - create:document
       username: rhtpa-user
+    - createdTimestamp: 1
+      credentials:
+      - temporary: false
+        type: password
+        value: ${ACS_ADMIN_PASSWORD}
+      email: admin@example.com
+      emailVerified: true
+      enabled: true
+      firstName: ACS
+      lastName: Administrator
+      realmRoles:
+      - acs-admin
+      - offline_access
+      username: admin
   ingress:
     enabled: true
     service: keycloak-service-trusted
@@ -387,6 +468,9 @@ keycloak:
     # RHTPA CLI OIDC client secret (infra)
     rhtpaCli:
       vaultPath: secret/data/hub/infra/rhtpa/rhtpa-oidc-cli
+    # ACS Central OIDC client secret (infra)
+    acsClient:
+      vaultPath: secret/data/hub/infra/acs/acs-central
   # SPIFFE Identity Provider for Federated Client Authentication
   # Requires RHBK 26.4+ with Technology Preview features: spiffe + client-auth-federated
   # (automatically enabled in keycloak.yaml when this is enabled)
