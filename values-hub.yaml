@@ -257,7 +257,8 @@ clusterGroup:
       annotations:
         argocd.argoproj.io/sync-wave: '-30'
       project: hub
-      path: charts/compliance-scanning
+      chart: ocp-compliance-scanning
+      chartVersion: 0.0.*
       overrides:
         # Disable unused PVC - compliance operator creates its own PVCs per scan
         # via rawResultStorage in scan-setting.yaml. The explicit PVC causes
@@ -342,7 +343,8 @@ clusterGroup:
     #   name: quay-registry
     #   namespace: quay-enterprise
     #   project: hub
-    #   path: charts/quay-registry
+    #   chart: quay
+    #   chartVersion: 0.1.*
     #   annotations:
     #     argocd.argoproj.io/sync-wave: "10"  # Deploy after NooBaa storage backend
     # RHTAS with SPIFFE Integration
@@ -429,7 +431,8 @@ clusterGroup:
       name: rh-keycloak
       namespace: keycloak-system
       project: hub
-      path: charts/keycloak
+      chart: rhbk
+      chartVersion: 0.0.*
       # SPIFFE Identity Provider is enabled by default in the chart.
       # Override issuer/jwksUrl only if auto-generated values from cluster domain are not suitable.
       # overrides:
@@ -441,12 +444,14 @@ clusterGroup:
       name: rh-cert-manager
       namespace: cert-manager-operator
       project: hub
-      path: charts/certmanager
+      chart: ocp-certmanager
+      chartVersion: 0.2.*
     zero-trust-workload-identity-manager:
       name: zero-trust-workload-identity-manager
       namespace: zero-trust-workload-identity-manager
       project: hub
-      path: charts/zero-trust-workload-identity-manager
+      chart: ztwim
+      chartVersion: 0.1.*
       overrides:
         - name: spire.clusterName
           value: hub
